@@ -1,0 +1,121 @@
+
+	*{
+		font-family:Tahoma, Geneva, sans-serif;
+		background-color:#dddddd;
+	}
+
+	.regBtn {background-color: #008CBA;
+		border-style: solid;
+		color: white;
+		width:150px;
+		height:120px;
+		text-align: center;
+		text-decoration: none;
+		display: inline-block;
+		font-size: 25px;
+		margin: 20x 20px;
+		cursor: pointer; 
+		border-radius:12px;
+		}
+
+		
+
+	.main_wrapper{
+		display:grid;
+		margin:auto;
+		grid-template-columns:65% 35%;
+	}
+	.checkout_area{
+	
+		border-radius:5px;
+		justify-self:end;
+		width:100%;
+
+	}
+	.order_list{
+		border-style:solid;
+		border-radius:5px;
+		border-color:white;
+
+		height:600px;		
+		overflow:scroll;
+		overflow-x:hidden;
+		background-color:white;
+	}
+	.order_total{
+		background-color:#dddddd;
+		border-style:solid;
+		border-color:white;
+		border-radius:5px;
+		background-color: #008CBA;
+	
+	}
+	.total_text{
+		
+		color:white;
+		text-align:center;
+		font-size:30px;
+		background-color:#008CBA;
+	}
+	.control_view_area{
+		margin:auto;
+		width:85%;
+		height:700px;
+		float:left;
+		display:grid;
+		grid-template-columns:50% 50%;
+		grid-template-rows:22% 22%;
+	}
+
+
+	.th_area
+	{
+	   background-color:#dddddd;
+	   border-style:solid;
+           border-radius:16px;
+
+	}
+
+
+	table {
+	  border-collapse: collapse;
+	  border-radius:12px;
+	  width: 100%;
+	  overflow:scroll;
+	}
+
+	td, th {
+	  text-align: left;
+	  padding: 12px;
+	  background-color:white;
+	}
+	th{
+	  position:sticky;
+	  top: 0;
+	  background-color: #008CBA;
+	  color: white;
+	}
+
+	tr:nth-child(even) td{
+	 	/* 
+		background-color:#dddddd;*/
+	}	
+
+	video{
+		border-style:solid;
+		border-color:white;
+		border-radius: 12px;
+		
+	}
+
+
+	.product{
+		color:black;
+	}
+
+
+	.product_selected{
+		color:black;
+	}	
+
+

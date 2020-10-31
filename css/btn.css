@@ -1,0 +1,20 @@
+
+    .regBtn {
+    background-color: #008CBA;
+    border: none;
+    color: white;
+    width:130px;
+    height:100px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 20px;
+    margin: 20x 20px;
+    cursor: pointer; 
+    border-radius:12px;
+}
+
+.regBtnCheckout{
+    color:white;
+
+}
