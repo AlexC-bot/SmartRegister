@@ -1,4 +1,10 @@
 
+
+
+
+var codeToLabel = {0: 'Apple Granny Smith', 1: 'Apple Red Delicious', 2: 'Banana', 3: 'Lemon', 
+4: 'Pepper Green', 5: 'Potato White'}
+
 //contains the items currently within the order 
 var orderList = Array();
 
@@ -10,26 +16,72 @@ var orderTotal = 0;
 
 var salesTaxRate = 0.06 ;
 
+
+var model = null;
+
+
 let products = {
 
-    111 :{
-        name:'Potato',
+    0:{
+        name:'Apple G. Smith',
         price:1.30,
-        weight:null,
-        count:2,
-        taxed:true,
-        id:111
+        weight:0,
+        count:null,
+        taxed:false,
+        id:0
+
+    },
+	1:{
+        name:'Apple Red Del.',
+        price:1.00,
+        weight:0,
+        count:null,
+        taxed:false,
+        id:1
+
+    },
+	
+	
+
+	2:{
+        name:'Banana',
+        price:1.90,
+        weight:0,
+        count:null,
+        taxed:false,
+        id:2
+    },
+
+
+    3:{
+        name:'Lemon',
+        price:0.46,
+        weight:0,
+        count:null,
+        taxed:false,
+        id:3
+    },
+
+    4:{
+        name:'Pepper Green',
+        price:0.84,
+        weight:0,
+        count:null,
+        taxed:false,
+        id:4
 
     },
 
-    112:{
-        name:'Gran. Smith Apple',
+
+    5:{
+        name:'Potato White',
         price:1.90,
-        weight:1,
+        weight:0,
         count:null,
         taxed:false,
-        id:112
+        id:5
     }
+
 
 }
 
@@ -42,8 +94,15 @@ document.addEventListener("DOMContentLoaded", function(){
     //document.getElementById('product').onclick = openHome;
     
     'use strict';
-
+	
+	
+	//grabbing the Deep Learning model from the server 
+	getModel();
+	
     const video = document.getElementById('video');
+	video.style.cssText = "-moz-transform: scale(-1, 1); \
+	-webkit-transform: scale(-1, 1); -o-transform: scale(-1, 1); \
+	transform: scale(-1, 1); filter: FlipH;";
     //const canvas = document.getElementById('myCanvas');
     const scan = document.getElementById("scan");
     //const errorMsgElement = document.querySelector('span#errorMsg');
@@ -54,10 +113,13 @@ document.addEventListener("DOMContentLoaded", function(){
     
     const signOff = document.getElementById("signOff");
 
+    const checkout = document.getElementById('checkout');
+
     const constraints = {
         audio: false,
         video: {
             width: 360, height: 260
+			
         }
     };
 
@@ -94,11 +156,130 @@ document.addEventListener("DOMContentLoaded", function(){
     cancel.addEventListener('click', cancelBtnListener);
 
     signOff.addEventListener('click', signOffBtnListener);
+
+    
+    checkout.addEventListener('click', checkoutBtnListener);
 });
 
 
-//The button event listener
-//==============================================================
+
+function get_dateTime() 
+{
+    var dateTime= new Date();
+    var date=  dateTime.toISOString().slice(0, 10).replace('T', ' ');
+
+    
+    return date;
+}
+
+function checkoutBtnListener(){
+    if(orderList.length !== 0){
+        checkout_info = {
+
+            'cashier_id': window.localStorage.cashier_id,
+            'total':orderTotal,
+            'date': get_dateTime(),
+            'products':orderList
+        
+        }
+
+        //this json object is what we will use to 
+        //update the products inventory 
+        let orderListRequest = {}
+
+        console.log('order list:')
+
+        let currentId = null;
+        for(let i=0; i<orderList.length; i++){
+
+            if(orderList[i]!==null){
+                console.log("product Name: "+ orderList[i].name+", id: "+ orderList[i].id);
+
+                currentId = orderList[i].id;
+                if(orderListRequest[currentId]=== undefined){
+                    
+                    orderListRequest[currentId] =  orderList[i].weight;
+                }
+                else{
+                    
+                    orderListRequest[currentId] = orderListRequest[currentId] +  orderList[i].weight;
+                }
+            }
+
+        }
+
+        console.log("order list request");
+        for (let i in orderListRequest){
+            console.log(i)
+            console.log('order list weight: '+orderListRequest[i])
+        }
+        console.log('--------------------------');
+        
+        
+
+        
+        fetch("insertOrderReceipt.php",{
+            method:'POST',
+            body: JSON.stringify(checkout_info)
+
+        })
+        .then(res =>res.text())
+        .then(res => console.log(res))
+        
+
+        
+        fetch("updateProductWeight.php",{
+            method:'POST',
+            body: JSON.stringify(orderListRequest)
+
+        })
+        .then(res=>res.text())
+        .then(res => console.log('response: '+res))  
+        
+        clearOrder();
+
+    }
+}
+
+
+//this function sends the receipt data to the database
+async function sendReceiptData(cashier_id, password) {
+    const response = await fetch("insert.php",{
+        method:'POST',
+        body: JSON.stringify({"cashier_id":cashier_id , "password":password }) // JSON.stringify( {cash_id: cashier_id, password: password } )
+    });
+    const json = await response.json();
+    
+
+    console.log("response from php: " + res);
+    if(res==="found"){
+        console.log("cashier found!");
+        cashierFound =true;
+    }
+    else if(res==="not found"){
+        console.log("cashier not found!")
+        cashierFound = false;
+    }
+    else if(res==='email/password not provided')
+    {
+        console.log("cahsier id or password not provided...");
+        cashierFound =false;
+    }
+    else if("connection error"===res){
+        console.log("connection error...");
+        cashierFound = false;
+    }
+    else
+    {
+        console.log("error....");
+        cashierFound =false;
+    }
+
+
+
+
+    return cashierFound;
+}
 
 
 //This button removes all of the selected items within the 
@@ -147,24 +328,24 @@ function removeBtnListner(){
 
 
 function signOffBtnListener(){
-    
-    openConfirmModal("Sign off");
+    let confirmModal = document.getElementById("confirm_modal");
 
+    confirmModal.style.display = "block";    
+    openConfirmModal("sign off", signOffUser);
 
-    //need to include yesButton
-
-    //need to include no button 
-
-    //open the login window if user selects yes
-    //window.open("login.html", "_self");
-
-
-    //exit the modal if user selects no 
 
 
 
 
 }
+
+//this functions signs the user off by sending the 
+//sign off data to the server and opening the login
+//button 
+function signOffUser(){
+    window.open("index.html", "_self");
+}
+
 
 //Getting arrays 
 //Array.from(pts).forEach((prod)=>prod.onclick= () => prod.style.color="blue" )
@@ -179,17 +360,21 @@ function scanBtnListener(){
     modal.style.display = "block";
 
     var context = canvas.getContext('2d');
+   
 
     //drawing an image of the video steram to the
     //canvas element
     //640 480
     context.drawImage(video, 0, 0, 360, 260);
     
+	var image = context.getImageData(0, 0, 360, 260);
+
+	
     //saving an image of the canvas element 
     //to pass into the deep learning model for classification 
-    var image = canvas.toDataURL('image/png');
+    //var image = canvas.toDataURL('image/png');
     
-    window.myImage = image;
+	window.myImage  = canvas;
 
 
 
@@ -197,11 +382,146 @@ function scanBtnListener(){
     In this part of the code I will process the Image through the deep learning 
     model 
     */
+	
+	//gettig the prediction for the window.myImage webcam image 
+	getPrediction();
+	
+	
+	//This object holds the results for the machine learning model
+	console.log(window.modelResult);
+	
 
-    //creating generic product
+	
+	//getting the max percentage from the 
+	//prediction results
+	let first = window.modelResult[0];
+	let firstIndex =0 ;
 
-    let product = products[112];
+	let second = -999999;//window.modelResult[1];
+	let secondIndex = -1;
+	for(let i=1; i<window.modelResult.length ;i++){
+		let firstHolder;
+
+		let firstHolderIndex;
+		if(first<window.modelResult[i] ){
+
+			firstHolder = first;
+			firstHolderIndex = firstIndex;
+
+			first = window.modelResult[i];
+			firstIndex = i; 
+			
+			if(second < firstHolder ){
+				
+				console.log("second over here:"+second);
+				second = firstHolder;
+				secondIndex = firstHolderIndex;
+			}
+
+			
+		}
+		else if(second<window.modelResult[i]){
+			second = window.modelResult[i];
+			secondIndex = i;
+		}
+	
+	}
+
+	let third = -111;
+	let thirdIndex = 1000;
+	for(let i=0;i<window.modelResult.length;i++){
+
+		if(firstIndex ===i || secondIndex===i ){
+			continue;	
+			
+		}
+		if(third < window.modelResult[i]){
+			third = window.modelResult[i];
+			thirdIndex = i;
+		}
+	}	
+		
+	
+	console.log("first : "+first+" index:"+firstIndex);
+
+	console.log("second: "+second+" index: "+secondIndex);
+
+	console.log("third: "+third+" index: "+thirdIndex);	
+
+		
+
+	
+	let img1 = document.getElementById("classImg1");
+    let classPerc1 = document.getElementById("class1Perc");
+    img1.onclick = ()=> classSelected(firstIndex);
+
+	let img2 = document.getElementById("classImg2");
+	let classPerc2 = document.getElementById("class2Perc");
+    img2.onclick = ()=>  classSelected(secondIndex) //console.log(secondIndex);
+	
+	let img3 = document.getElementById("classImg3");
+	let classPerc3 = document.getElementById("class3Perc");
+    img3.onclick = ()=> classSelected(thirdIndex);
+
+
+	
+	
+	
+	img1.src = codeToLabel[firstIndex]+".jpg";
+	img1.width = "250";
+	img1.height = "250";
+	classPerc1.innerHTML = codeToLabel[firstIndex]+":"+(window.modelResult[firstIndex]*100).toFixed(2)+"%";
+	
+	
+	img2.src = codeToLabel[secondIndex]+".jpg";
+	img2.width = "250";
+	img2.height = "250";
+	classPerc2.innerHTML = codeToLabel[secondIndex]+":"+(window.modelResult[secondIndex]*100).toFixed(2)+"%";
+	
+	
+	img3.src = codeToLabel[thirdIndex]+".jpg";
+	img3.width = "250";
+	img3.height = "250";
+	classPerc3.innerHTML = codeToLabel[thirdIndex]+":"+(window.modelResult[thirdIndex]*100).toFixed(2)+"%";
+	
+	
+	
+		
+}
+
+
+
+//This function gests called when the user clicks on 
+//the image of the class within the classification modal 
+function classSelected(index){
+
+    hideModal()
+    
+    //getting the product attributes to add
+    //a new product to the order
+    let product = {
+        name : products[index].name,
+        price : products[index].price,
+        weight : products[index].weight,
+        count : products[index].count,
+        taxed : products[index].taxed,
+        id : products[index].id
+    }
+
+    
+    //getting the weight from the scale
+    let socket =io();
+    socket.emit("get weight", "need");
+    socket.on("weight", (weight)=>price.weight=weight )
+
+    //getting the price from the weight
+    product.price = product.price * product.weight;
+    
+    //pushing the product into the orderlist
     orderList.push(product);
+
+
+ 
     
 
     //contains the recently added products index
@@ -217,6 +537,16 @@ function scanBtnListener(){
 function cancelBtnListener(){
    
     console.log('cancel button pressed!');
+
+    openConfirmModal("cancel the order", clearOrder )
+
+
+}
+
+//clears all of the items from the orderlist 
+//UI and model
+function clearOrder(){
+
     let rows = Array.from(document.getElementsByTagName('tr'));
     
    //Getting all the rows that isn't the table header
@@ -228,15 +558,19 @@ function cancelBtnListener(){
 
     }
 
+    orderTotal = 0;
+    let totalElement= document.getElementById("total_text");
+    totalElement.innerHTML = "Total: $"+orderTotal.toFixed(2)
     orderList = Array();
 
     selectOrderListProds = Array();
 
+    //hides the confirm modal from the user 
+    let confirmModal = document.getElementById("confirm_modal");
+    confirmModal.style.display = "none";
 
 }
 
-
-//==============================================================
 
 
 //Adds a new product list element to the
@@ -358,9 +692,9 @@ function decrementOrderTotal(product){
 
 }
 
-function openConfirmModal(message)
+function openConfirmModal(message, yesFunction)
 {
-    let outMesssage = "Are you Sure you want to "+message+"?";
+    let outMesssage = "Are you sure you want to "+message+"?";
 
     let headerMessage = document.getElementById("confirm_modal_header");
     headerMessage.innerHTML = outMesssage;
@@ -369,5 +703,95 @@ function openConfirmModal(message)
     let confirmModal = document.getElementById("confirm_modal");
 
     confirmModal.style.display = "block";
+    document.getElementById("yes").onclick = yesFunction;
 
+    document.getElementById("no").onclick = ()=> confirmModal.style.display = "none";
+}
+
+
+
+
+
+/*
+	DEEP LEARNING SUBSYSTEM
+	========================================
+	This section contains all of the deep learning
+	sub system 
+	==========================================
+
+
+*/
+
+//crops the images
+function cropImage(img) {
+  const width = img.shape[0];
+  const height = img.shape[1];
+
+  // use the shorter side as the size to which we will crop
+  const shorterSide = Math.min(img.shape[0], img.shape[1]);
+
+  // calculate beginning and ending crop points
+  const startingHeight = (height - shorterSide) / 2;
+  const startingWidth = (width - shorterSide) / 2;
+  const endingHeight = startingHeight + shorterSide;
+  const endingWidth = startingWidth + shorterSide;
+
+  // return image data cropped to those points
+  return img.slice([startingWidth, startingHeight, 0], [endingWidth, endingHeight, 3]);
+}
+
+
+function preprocessImage(img){
+	
+	img = tf.browser.fromPixels(img); 	
+	
+	//cropping the image to be a square
+	img = cropImage(img);
+
+	//resizing the image to [244, 244, 3] 
+    img = tf.image.resizeBilinear(img, [244, 244]);
+	
+	//added the dimension forth dimension to the model
+	img = img.expandDims(0);
+	
+	//scaling the image between 1 and -1 
+  	img = img.toFloat().div(tf.scalar(127)).sub(tf.scalar(1));
+	
+
+	//img.print();
+
+
+	img = img.reshape([-1,244,244,3]);
+	return img;
+	
+}
+
+ function getPrediction(){
+	//on nginx 
+	//http://localhost/jsProduceModel/model.json'
+	//const model = await tf.loadLayersModel('http://localhost:8080/html1/jsProduceModel/model.json');
+    
+    //getting the image taken by the camera
+	var img =  window.myImage;
+	img = preprocessImage(img);
+	
+	
+	//getting the image prediction 
+	let imgPred = model.predict(img );
+    
+    //turning the image results into 
+    //a usable array
+	let predResults;
+	predResults= imgPred.arraySync();
+	
+    //printing and the get the array location that 
+    //stores the classification results
+	console.log("the array index 0:"+predResults);
+	window.modelResult = predResults[0];
+	
+
+}
+
+async function getModel(){
+	model = await tf.loadLayersModel('http://localhost:8080/html1/jsProduceModel/model.json');
 }

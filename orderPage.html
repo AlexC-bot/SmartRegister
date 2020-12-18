@@ -1,0 +1,112 @@
+<html>
+<head>
+
+<link rel="stylesheet" href="css/btn.css">
+  <link rel="stylesheet" href="css/modal.css">
+<link rel='stylesheet' href = "css/project.css">
+
+</head>
+<body>
+	
+	<div class="main_wrapper">
+		<div class="checkout_area">
+			<div class="order_list">
+				<table id="order_table">
+				  <tr id="table_header" >
+				    <th>Product</th>
+				    <th>Price</th>
+					<th>Weight/Quantity</th>
+					<th>Taxed</th>
+				  </tr>
+				 
+
+				</table>
+			</div>
+			<div class="order_total">
+				<p id="total_text" class='total_text'>Total: $0.00 </p>	
+			</div>
+		</div>
+		<div class="control_view_area">
+			<button class='regBtn' id="cancel">Cancel</button>
+
+			<button class='regBtn' id="signOff" >Sign Off</button>
+			<button class='regBtn' id='remove'>Remove</button>
+			<button class='regBtn'id= 'checkout'>Checkout</button>
+			<button class='regBtn' id="scan">Scan</button>
+			<div style="height:129.5px"></div>
+			<video  id='video' autoplay> </video>
+			</div>
+
+	</div>
+
+	
+	<!-- The Modal -->
+	<div id="modal" class="modal">
+
+	  <!-- Modal content -->
+	  <div class="modal-content">
+		<div class="modal-header">
+		  <span class="close" onclick="hideModal()">&times;</span>
+		  <h2 class="class_selection_header" >Class Selection</h2>
+		</div>
+		
+		
+		<div class="modal-body">
+			<div class="row">
+			  <div class="column">
+				<img src="blankImg.png" id="classImg1" style="width:100%" >
+				<p class="percentage_class" id="class1Perc" ></p>
+			  </div>
+			  <div class="column">
+				<img src="blankImg.png" id="classImg2"   style="width:100%">
+				<p class="percentage_class" id="class2Perc" ></p>
+			  </div>
+			  <div class="column">
+				<img src="blankImg.jpg"  id="classImg3" style="width:100%">
+				<p class="percentage_class" id="class3Perc" ></p>
+			  </div>
+			</div>
+			<div class="canvas-container">
+				<canvas class="myCanvas" id="myCanvas" width="350" height="250" style="border-style:dashed;margin-left:33%;margin-right:25%"></canvas>
+			</div>
+		</div>
+
+	  </div>
+
+	</div>
+
+	<div class="modal" id="confirm_modal">
+
+	  <!-- Modal content -->
+	  <div class="modal-content">
+		<div class="modal-header">
+		  <span class="close" onclick="hideModal()">&times;</span>
+		  <h2 class="class_selection_header" id="confirm_modal_header"></h2>
+		</div>
+		
+		
+		<div class="modal-body" style=" display: flex;justify-content: center" >
+				<button id="yes" class="regBtn">Yes</button> 
+
+				<span style="margin-left: 10px;"></span>
+				<button id="no" class="regBtn">No</button>
+
+		</div>
+
+	  </div>
+
+	</div>
+
+
+	<script src="https://cdn.socket.io/socket.io-3.0.1.min.js"></script>
+
+	<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@2.0.0/dist/tf.min.js"></script>
+	
+	<script src="js/scripts.js" ></script>
+	
+	</div>
+	
+		
+	
+</body>
+</html>

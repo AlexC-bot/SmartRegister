@@ -1,10 +1,12 @@
 
 	*{
+		
 		font-family:Tahoma, Geneva, sans-serif;
 		background-color:#dddddd;
 	}
 
-	.regBtn {background-color: #008CBA;
+	.regBtn {
+		background-color: #008CBA;
 		border-style: solid;
 		color: white;
 		width:150px;
@@ -118,4 +120,16 @@
 		color:black;
 	}	
 
+
+	.myCanvas{
+
+		border-style:dashed;
+		margin-left:33%;
+		margin-right:25%;
+		-moz-transform: scale(-1, 1);
+		-webkit-transform: scale(-1, 1);
+		-o-transform: scale(-1, 1);
+		transform: scale(-1, 1);
+		filter: FlipH;
+	}
 
